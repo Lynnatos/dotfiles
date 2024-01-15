@@ -2,8 +2,6 @@
 
 echo "Donwload Torrent without ads "
 
-search=$1
-array=$2
 
 download_movie()
 {
@@ -36,15 +34,42 @@ download_movie()
 
     done
 
-    #echo $command_movie
+}
 
-    #magnet_movie=`lynx -dump -listonly ${query[$2]} | awk '{print $2}' | grep magnet `
+download_tv()
+{
 
-    #query_magnet=($magnet_movie)
 
-    #qbittorrent ${query_magnet[0]}
+    command_movie=`lynx -dump -listonly https://1337x.to/category-search/$1/TV/1/ | awk '{print $2}' |grep "torrent/" |grep -v https://1337x.to/category-search/$1/Movies ` 
+
+    query=($command_movie)
+
+    select opt in "${query[@]}" quit
+    do
+
+        case $opt in
+            "quit")
+                exit
+
+        esac
+        
+        magnet_movie=`lynx -dump -listonly $opt | awk '{print $2}' | grep magnet `
+        
+        query_magnet=($magnet_movie)
+
+        qbittorrent  ${query_magnet[0]}&
+
+        sleep 2
+        
+        exit
+
+        
+
+    done
+
 
 }
+
 
 download_game()
 {
@@ -87,35 +112,29 @@ download_music()
 
 
 
-main_menu() {
-    menu='What are you trying to download? '
+main_menu(){
 
-    options=("Movie" "Game" "Music" "Nothing")
-    select opt in "${options[@]}"
-    do 
-        case $opt in
-            "Movie")
-                download_movie "$search" "$array"
-                ;;
-            "Game")
-                download_game "$search" "$array"
-                ;;
-            "Music")
-                download_music
-                ;;
-            "Nothing")
-                break
-                ;;
-            *) 
-                echo "Invalid option $REPLY";;
-            esac
-    done
+
+	if [ $1 == "Movie" ]; then
+		download_movie $2
+	
+	elif [ $1 == "Series"  ]; then
+		download_tv $2
+	
+	elif [ $1 == "Games"  ]; then
+		download_game $2
+	
+	else
+		echo "Example: 1337xtorrent Games Solasta"
+		echo "Avaliable options: Games, Movies, Series, Music"
+	fi
 
 }
 
 
 
-main_menu
+
+main_menu $1 $2
 
 
 
