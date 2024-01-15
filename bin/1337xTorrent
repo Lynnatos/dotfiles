@@ -1,0 +1,121 @@
+#! /bin/bash
+
+echo "Donwload Torrent without ads "
+
+search=$1
+array=$2
+
+download_movie()
+{
+
+
+    command_movie=`lynx -dump -listonly https://1337x.to/category-search/$1/Movies/1/ | awk '{print $2}' |grep "torrent/" |grep -v https://1337x.to/category-search/$1/Movies ` 
+
+    query=($command_movie)
+
+    select opt in "${query[@]}" quit
+    do
+
+        case $opt in
+            "quit")
+                exit
+
+        esac
+        
+        magnet_movie=`lynx -dump -listonly $opt | awk '{print $2}' | grep magnet `
+        
+        query_magnet=($magnet_movie)
+
+        qbittorrent  ${query_magnet[0]}&
+
+        sleep 2
+        
+        exit
+
+        
+
+    done
+
+    #echo $command_movie
+
+    #magnet_movie=`lynx -dump -listonly ${query[$2]} | awk '{print $2}' | grep magnet `
+
+    #query_magnet=($magnet_movie)
+
+    #qbittorrent ${query_magnet[0]}
+
+}
+
+download_game()
+{
+
+
+    command=`lynx -dump -listonly https://1337x.to/search/$1/1/ | awk '{print $2}'  | grep  "FitGirl" | grep -v "https://1337x.to/user/FitGirl/"`
+
+    query=($command)
+
+    select opt in "${query[@]}" quit
+        do
+
+            case $opt in
+                "quit")
+                    exit
+
+            esac
+
+
+            magnet_game=`lynx -dump -listonly $opt | awk '{print $2}' | grep magnet`
+
+
+            query_magnet=($magnet_game)
+
+            qbittorrent ${query_magnet[0]}&
+
+            sleep 2
+
+            exit
+
+        done
+
+
+}
+
+download_music()
+{
+    echo "Nothing yet!"
+}
+
+
+
+main_menu() {
+    menu='What are you trying to download? '
+
+    options=("Movie" "Game" "Music" "Nothing")
+    select opt in "${options[@]}"
+    do 
+        case $opt in
+            "Movie")
+                download_movie "$search" "$array"
+                ;;
+            "Game")
+                download_game "$search" "$array"
+                ;;
+            "Music")
+                download_music
+                ;;
+            "Nothing")
+                break
+                ;;
+            *) 
+                echo "Invalid option $REPLY";;
+            esac
+    done
+
+}
+
+
+
+main_menu
+
+
+
