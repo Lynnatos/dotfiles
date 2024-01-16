@@ -133,7 +133,7 @@ main_menu(){
 
 
 
-if [ $# -lt 1 || $# -eq 0  ];then
+if [ $# -lt 1 ] || [ $# -eq 0  ];then
 	main_menu $1 $2 2> /dev/null
 else
 	main_menu $1 $2
