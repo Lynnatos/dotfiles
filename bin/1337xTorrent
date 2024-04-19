@@ -1,5 +1,7 @@
 #! /bin/bash
 
+bold=$(tput bold)
+
 echo "Donwload Torrent without ads "
 
 
@@ -152,10 +154,52 @@ download_music()
 
 
 
+download_anyShit()
+{
+
+
+    command=`lynx -dump -listonly https://1337x.to/search/$1/1/ | awk '{print $2}' | grep ".to/torrent"   `
+
+    query=($command)
+    select opt in "${query[@]}"  quit
+        do
+
+            case $opt in
+                "quit")
+                    exit
+
+            esac
+
+			clear			
+
+            total_size=`lynx -dump  $opt | grep 'Total size' | awk '{print $4}'`
+            unity=`lynx -dump  $opt | grep 'Total size' | awk '{print $5}'`
+			magnet=`lynx -dump -listonly $opt | awk '{print $2}' | grep magnet`
+           	query_magnet=($magnet)
+			
+			echo $kek "Total size: "$kek $total_size $kek $unity
+			read -p  "Is this okay? Yes/No:  " okay
+
+			if [ $okay == "Yes"  ];then
+				qbittorrent ${query_magnet[0]}&
+			else
+				exit
+			fi		
+
+            sleep 2
+
+            exit
+
+        done
+
+
+}
+
+
+
 main_menu(){
 
-
-	if [ $1 == "Movie" ]; then
+	if [ $1 == "Movies" ]; then
 		download_movie $2
 	
 	elif [ $1 == "Series"  ]; then
@@ -176,8 +220,10 @@ main_menu(){
 
 
 
-if [ $# -lt 1 ] || [ $# -eq 0  ];then
+if [ $# -eq 0  ]; then
 	main_menu $1 $2 2> /dev/null
+elif [ $# -eq 1 ]; then 
+	download_anyShit $1 
 else
 	main_menu $1 $2
 fi
