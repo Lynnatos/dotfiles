@@ -5,154 +5,48 @@ bold=$(tput bold)
 echo "Donwload Torrent without ads "
 
 
-download_movie()
+
+
+download()
 {
 
 
-    command_movie=`lynx -dump -listonly https://1337x.to/category-search/$1/Movies/1/ | awk '{print $2}' |grep "torrent/" |grep -v https://1337x.to/category-search/$1/Movies ` 
-
-    query=($command_movie)
-
-    select opt in "${query[@]}" quit
-    do
-
-        case $opt in
-            "quit")
-                exit
-
-        esac
-        
-        magnet_movie=`lynx -dump -listonly $opt | awk '{print $2}' | grep magnet `
-        
-        query_magnet=($magnet_movie)
-
-        qbittorrent  ${query_magnet[0]}&
-
-        sleep 2
-        
-        exit
-
-        
-
-    done
-
-}
-
-
-
-download_anime()
-{
-
-
-    command_anime=`lynx -dump -listonly https://1337x.to/category-search/$1/Anime/1/ | awk '{print $2}' |grep "torrent/" |grep -v https://1337x.to/category-search/$1/Movies `
-
-    query=($command_anime)
-
-    select opt in "${query[@]}" quit
-    do
-
-        case $opt in
-            "quit")
-                exit
-
-        esac
-
-        magnet_anime=`lynx -dump -listonly $opt | awk '{print $2}' | grep magnet `
-
-        query_magnet=($magnet_anime)
-
-        qbittorrent  ${query_magnet[0]}&
-
-        sleep 2
-
-        exit
-
-
-
-    done
-
-}
-
-
-
-
-
-
-download_tv()
-{
-
-
-    command_movie=`lynx -dump -listonly https://1337x.to/category-search/$1/TV/1/ | awk '{print $2}' |grep "torrent/" |grep -v https://1337x.to/category-search/$1/Movies ` 
-
-    query=($command_movie)
-
-    select opt in "${query[@]}" quit
-    do
-
-        case $opt in
-            "quit")
-                exit
-
-        esac
-        
-        magnet_movie=`lynx -dump -listonly $opt | awk '{print $2}' | grep magnet `
-        
-        query_magnet=($magnet_movie)
-
-        qbittorrent  ${query_magnet[0]}&
-
-        sleep 2
-        
-        exit
-
-        
-
-    done
-
-
-}
-
-
-download_game()
-{
-
-
-    command=`lynx -dump -listonly https://1337x.to/search/$1/1/ | awk '{print $2}'  | grep  "FitGirl" | grep -v "https://1337x.to/user/FitGirl/"`
+    command=`lynx -dump -listonly https://1337x.to/category-search/$2/"$1"/1/ | awk '{print $2}' | grep ".to/torrent"   `
 
     query=($command)
-
-    select opt in "${query[@]}" quit
+    select opt in "${query[@]}"  quit
         do
-
-            case $opt in
+	    case $opt in
                 "quit")
-                    exit
+                exit
 
             esac
+        
+	
+	clear			
 
+    total_size=`lynx -dump  $opt | grep 'Total size' | awk '{print $4}'`
+    unity=`lynx -dump  $opt | grep 'Total size' | awk '{print $5}'`
+	magnet=`lynx -dump -listonly $opt | awk '{print $2}' | grep magnet`
+    query_magnet=($magnet)
+			
+	echo $kek "Total size: "$kek $total_size $kek $unity
+	read -p  "Is this okay? Yes/No:  " okay
 
-            magnet_game=`lynx -dump -listonly $opt | awk '{print $2}' | grep magnet`
+	if [ $okay == "Yes"  ] || [ $okay == "yes" ] || [ $okay == "YES" ] || [ $okay == "y" ];then
+	    qbittorrent ${query_magnet[0]}& 
+	else
+	    exit
+	fi		
+		
+		sleep 2
+		clear
+        exit
 
-
-            query_magnet=($magnet_game)
-
-            qbittorrent ${query_magnet[0]}&
-
-            sleep 2
-
-            exit
-
-        done
+    done    
 
 
 }
-
-download_music()
-{
-    echo "Nothing yet!"
-}
-
-
 
 download_anyShit()
 {
@@ -200,16 +94,18 @@ download_anyShit()
 main_menu(){
 
 	if [ $1 == "Movies" ]; then
-		download_movie $2
+		download $1 $2
 	
 	elif [ $1 == "Series"  ]; then
-		download_tv $2
+		tv="TV"
+		download $tv $2
 	
 	elif [ $1 == "Games"  ]; then
-		download_game $2
+		download $1 $2
 	
 	elif [ $1 == "Animes" ];then
-		download_anime $2
+		anime="Anime"
+		download $anime $2
 
 	else
 		echo "Example: 1337xtorrent Games Solasta"
