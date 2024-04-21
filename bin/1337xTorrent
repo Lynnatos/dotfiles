@@ -11,9 +11,9 @@ download()
 {
 
 
-    command=`lynx -dump -listonly https://1337x.to/category-search/$2/"$1"/1/ | awk '{print $2}' | grep ".to/torrent"   `
+    page=`lynx -dump -listonly https://1337x.to/category-search/$2/"$1"/1/ | awk '{print $2}' | grep ".to/torrent"   `
 
-    query=($command)
+    query=($page)
     select opt in "${query[@]}"  quit
         do
 	    case $opt in
@@ -52,9 +52,9 @@ download_anyShit()
 {
 
 
-    command=`lynx -dump -listonly https://1337x.to/search/$1/1/ | awk '{print $2}' | grep ".to/torrent"   `
+    page=`lynx -dump -listonly https://1337x.to/search/$1/1/ | awk '{print $2}' | grep ".to/torrent"   `
 
-    query=($command)
+    query=($page)
     select opt in "${query[@]}"  quit
         do
 
@@ -96,11 +96,11 @@ options()
 	do	
 		case $i in
 			--dump) if [ $# -eq 3 ]; then 
-						command=`lynx -dump -listonly https://1337x.to/category-search/$2/$1/1/ | awk '{print $2}' | grep ".to/torrent" >> dump.txt` 
+						page=`lynx -dump -listonly https://1337x.to/category-search/$2/$1/1/ | awk '{print $2}' | grep ".to/torrent" >> dump.txt` 
 						echo "Dumping links"
 						exit
 					elif [ $# -eq 2 ]; then 
-			 			command=`lynx -dump -listonly https://1337x.to/search/$1/1/ | awk '{print $2}' | grep ".to/torrent" >> dump.txt`   
+			 			page=`lynx -dump -listonly https://1337x.to/search/$1/1/ | awk '{print $2}' | grep ".to/torrent" >> dump.txt`   
 						echo "Dumping links"  
 						exit
 					else
@@ -149,7 +149,11 @@ main_menu(){
 
 }
 
-
+if ! command -v lynx &> /dev/null
+then
+	echo "Lynx not found"
+	echo "You need to install lynx"
+else
 
 if [ $# -eq 0  ]; then
 	main_menu $1 $2 2> /dev/null
@@ -162,5 +166,5 @@ else
 	options $1 $2
 fi
 
-
+fi
 
