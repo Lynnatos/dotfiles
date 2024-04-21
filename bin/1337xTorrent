@@ -90,26 +90,61 @@ download_anyShit()
 }
 
 
+options()
+{
+	for i in $@
+	do	
+		case $i in
+			--dump) if [ $# -eq 3 ]; then 
+						command=`lynx -dump -listonly https://1337x.to/category-search/$2/$1/1/ | awk '{print $2}' | grep ".to/torrent" >> dump.txt` 
+						echo "Dumping links"
+						exit
+					elif [ $# -eq 2 ]; then 
+			 			command=`lynx -dump -listonly https://1337x.to/search/$1/1/ | awk '{print $2}' | grep ".to/torrent" >> dump.txt`   
+						echo "Dumping links"  
+						exit
+					else
+						echo "Usage: 1337xTorrent {search query} --dump or 1337xTorrent {category} {search query} --dump "
+						exit 
+					fi;;
+
+			--help) echo "Usage : "; echo "--dump: Dump a list of the search results."; echo "--help: Show this screen" ; exit;;
+		esac
+	done
+	
+		if  [  $# -eq 1  ]; then
+			download_anyShit $1
+		elif [  $# -eq 2  ]; then
+			main_menu $1 $2		 	
+		fi
+	
+	
+
+
+}
+
 
 main_menu(){
+
+		
 
 	if [ $1 == "Movies" ]; then
 		download $1 $2
 	
-	elif [ $1 == "Series"  ]; then
+	elif [ $1 == "TV"  ]; then
 		tv="TV"
-		download $tv $2
+		download $1 $2
 	
 	elif [ $1 == "Games"  ]; then
 		download $1 $2
 	
-	elif [ $1 == "Animes" ];then
+	elif [ $1 == "Anime" ];then
 		anime="Anime"
-		download $anime $2
+		download $1 $2
 
 	else
 		echo "Example: 1337xtorrent Games Solasta"
-		echo "Avaliable options: Games, Movies, Series, Music and Animes"
+		echo "Avaliable options: Games, Movies, TV(for series), Music and Anime"
 	fi
 
 }
@@ -118,10 +153,13 @@ main_menu(){
 
 if [ $# -eq 0  ]; then
 	main_menu $1 $2 2> /dev/null
-elif [ $# -eq 1 ]; then 
-	download_anyShit $1 
+elif [  $# -eq 3  ]; then
+	options $1 $2 $3
+elif [ $# -eq 1 ]; then
+	#download_anyShit $1
+	options $1
 else
-	main_menu $1 $2
+	options $1 $2
 fi
 
 
