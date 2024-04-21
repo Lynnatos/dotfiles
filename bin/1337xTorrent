@@ -1,12 +1,17 @@
-#! /bin/bash
+#!/bin/bash
+#
+# This shell script dumps magnet links from 1337x and open them on qbittorrent
+#
+#
+#External script with ansi escape codes for decoratin.
+source colors
 
-bold=$(tput bold)
 
-echo "Donwload Torrent without ads "
-
+printf "${ORANGE}Donwload Torrent without ${LIGHT_RED}ADS!! \n ${NDC} "
 
 
 
+#Function used to search the content based on category 
 download()
 {
 
@@ -30,7 +35,8 @@ download()
 	magnet=`lynx -dump -listonly $opt | awk '{print $2}' | grep magnet`
     query_magnet=($magnet)
 			
-	echo $kek "Total size: "$kek $total_size $kek $unity
+	printf  "${LIGHT_PURPLE}Total size: $total_size $unity\n ${NDC}"
+ 
 	read -p  "Is this okay? Yes/No:  " okay
 
 	if [ $okay == "Yes"  ] || [ $okay == "yes" ] || [ $okay == "YES" ] || [ $okay == "y" ];then
@@ -44,16 +50,15 @@ download()
         exit
 
     done    
-
-
 }
 
+#How the name proposes, search for anything in any category 
 download_anyShit()
 {
 
 
     page=`lynx -dump -listonly https://1337x.to/search/$1/1/ | awk '{print $2}' | grep ".to/torrent"   `
-
+	
     query=($page)
     select opt in "${query[@]}"  quit
         do
@@ -65,31 +70,28 @@ download_anyShit()
             esac
 
 			clear			
-
             total_size=`lynx -dump  $opt | grep 'Total size' | awk '{print $4}'`
             unity=`lynx -dump  $opt | grep 'Total size' | awk '{print $5}'`
 			magnet=`lynx -dump -listonly $opt | awk '{print $2}' | grep magnet`
            	query_magnet=($magnet)
 			
-			echo $kek "Total size: "$kek $total_size $kek $unity
+			printf  "${LIGHT_PURPLE}Total size: $total_size $unity\n ${NDC}"
 			read -p  "Is this okay? Yes/No:  " okay
 
-			if [ $okay == "Yes"  ];then
+	if [ $okay == "Yes"  ] || [ $okay == "yes" ] || [ $okay == "YES" ] || [ $okay == "y" ];then
 				qbittorrent ${query_magnet[0]}&
 			else
 				exit
 			fi		
 
-            sleep 2
-
-            exit
+		sleep 2
+		clear
+        exit
 
         done
-
-
 }
 
-
+#Filtering the user's parameters 
 options()
 {
 	for i in $@
@@ -97,14 +99,14 @@ options()
 		case $i in
 			--dump) if [ $# -eq 3 ]; then 
 						page=`lynx -dump -listonly https://1337x.to/category-search/$2/$1/1/ | awk '{print $2}' | grep ".to/torrent" >> dump.txt` 
-						echo "Dumping links"
+						printf "${BLUE}>Dumping links${NDC}\n"
 						exit
 					elif [ $# -eq 2 ]; then 
 			 			page=`lynx -dump -listonly https://1337x.to/search/$1/1/ | awk '{print $2}' | grep ".to/torrent" >> dump.txt`   
-						echo "Dumping links"  
+						printf "${BLUE}>Dumping links${NDC}\n"  
 						exit
 					else
-						echo "Usage: 1337xTorrent {search query} --dump or 1337xTorrent {category} {search query} --dump "
+						printf "${RED}Usage: 1337xTorrent {search query} --dump or 1337xTorrent {category} {search query} --dump${NDC} \n"
 						exit 
 					fi;;
 
@@ -117,10 +119,6 @@ options()
 		elif [  $# -eq 2  ]; then
 			main_menu $1 $2		 	
 		fi
-	
-	
-
-
 }
 
 
@@ -143,16 +141,17 @@ main_menu(){
 		download $1 $2
 
 	else
-		echo "Example: 1337xtorrent Games Solasta"
-		echo "Avaliable options: Games, Movies, TV(for series), Music and Anime"
+		printf "${LIGHT_PURPLE}Example: 1337xtorrent Games Solasta \n"
+		printf "Avaliable options: Games, Movies, TV(for series), Music and Anime\n ${NDC}"
 	fi
 
 }
 
+#Checks if the user has lynx installed on the machine
 if ! command -v lynx &> /dev/null
 then
-	echo "Lynx not found"
-	echo "You need to install lynx"
+	printf "${LIGHT_PURPLE}Lynx not found\n"
+	printf "You need to install lynx\n ${NDC}"
 else
 
 if [ $# -eq 0  ]; then
@@ -160,7 +159,6 @@ if [ $# -eq 0  ]; then
 elif [  $# -eq 3  ]; then
 	options $1 $2 $3
 elif [ $# -eq 1 ]; then
-	#download_anyShit $1
 	options $1
 else
 	options $1 $2
