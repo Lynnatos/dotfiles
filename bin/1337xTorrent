@@ -9,6 +9,30 @@ source colors
 
 printf "${ORANGE}Donwload Torrent without ${LIGHT_RED}ADS!! \n ${NDC} "
 
+parameters=()
+
+
+#Function to concatenate strings
+#Games, Movies, TV(for series), Music and Anime
+strCon()
+{
+	for i in $@
+	do
+		case $i in
+			"Games") :;;
+			"Movies") : ;;
+			"TV") : ;;
+			"Music") : ;;
+			"Anime") : ;;
+			"--dump") :;;
+			"--help") : ;;
+			*) str+="$i+" ;;
+		
+		esac
+	done	
+	echo "$str"   
+}
+
 
 
 #Function used to search the content based on category 
@@ -94,15 +118,16 @@ download_anyShit()
 #Filtering the user's parameters 
 options()
 {
+	
 	for i in $@
 	do	
 		case $i in
-			--dump) if [ $# -eq 3 ]; then 
-						page=`lynx -dump -listonly https://1337x.to/category-search/$2/$1/1/ | awk '{print $2}' | grep ".to/torrent" >> dump.txt` 
+			--dump) if [ $# -ge 3 ]; then 
+						page=`lynx -dump -listonly https://1337x.to/category-search/$oneLineQuery/$1/1/ | awk '{print $2}' | grep ".to/torrent" >> dump.txt` 
 						printf "${BLUE}>Dumping links${NDC}\n"
 						exit
 					elif [ $# -eq 2 ]; then 
-			 			page=`lynx -dump -listonly https://1337x.to/search/$1/1/ | awk '{print $2}' | grep ".to/torrent" >> dump.txt`   
+			 			page=`lynx -dump -listonly https://1337x.to/search/$oneLineQuery/1/ | awk '{print $2}' | grep ".to/torrent" >> dump.txt`   
 						printf "${BLUE}>Dumping links${NDC}\n"  
 						exit
 					else
@@ -111,14 +136,20 @@ options()
 					fi;;
 
 			--help) echo "Usage : "; echo "--dump: Dump a list of the search results."; echo "--help: Show this screen" ; exit;;
+			 	 
 		esac
-	done
-	
-		if  [  $# -eq 1  ]; then
-			download_anyShit $1
-		elif [  $# -eq 2  ]; then
-			main_menu $1 $2		 	
-		fi
+	done		 
+		for i in $@
+		do
+			case $i in
+				"Games") main_menu $i $oneLineQuery;;
+			   "Movies") main_menu $i $oneLineQuery ;;
+			       "TV") main_menu $i $oneLineQuery;;
+				"Music") main_menu $i $oneLineQuery ;;
+				"Anime") main_menu $i $oneLineQuery ;;
+				      *) download_anyShit $oneLineQuery;;
+			esac
+		done
 }
 
 
@@ -154,10 +185,18 @@ then
 	printf "You need to install lynx\n ${NDC}"
 else
 
+#Separating query from parameters
+oneLineQuery=$(strCon $@)
+
+
 if [ $# -eq 0  ]; then
 	main_menu $1 $2 2> /dev/null
-elif [  $# -eq 3  ]; then
-	options $1 $2 $3
+elif [  $# -ge 3  ]; then
+	for i in $@
+	do
+		paraOP+=($i)
+	done
+	options "${paraOP[@]}"
 elif [ $# -eq 1 ]; then
 	options $1
 else
