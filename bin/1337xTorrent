@@ -16,6 +16,7 @@ parameters=()
 #Games, Movies, TV(for series), Music and Anime
 strCon()
 {
+    if [ $1 == "query"  ]; then
 	for i in $@
 	do
 		case $i in
@@ -26,10 +27,38 @@ strCon()
 			"Anime") : ;;
 			"--dump") :;;
 			"--help") : ;;
+			"parameters") : ;;
+			"search") : ;;
+			"query") : ;;
 			*) str+="$i+" ;;
 		
 		esac
-	done	
+	done
+   elif [ $1 == "search" ]; then
+	for i in $@
+	do
+		case $i in
+			"Games") str+="$i";;
+			"Movies") str+="$i" ;;
+			"TV") str+="$i" ;;
+			"Music") str+="$i" ;;
+			"Anime") str+="$i"  ;;
+			*) : ;;
+		
+		esac
+	done
+	
+   elif [ $1 == "parameters" ]; then
+	for i in $@
+	do
+		case $i in
+			"--dump") str+="$i";;
+			"--help") str+="$i" ;;
+			*) : ;;
+		
+		esac
+	done
+	fi
 	echo "$str"   
 }
 
@@ -138,7 +167,7 @@ options()
 			--help) echo "Usage : "; echo "--dump: Dump a list of the search results."; echo "--help: Show this screen" ; exit;;
 			 	 
 		esac
-	done		 
+	done
 		for i in $@
 		do
 			case $i in
@@ -186,21 +215,23 @@ then
 else
 
 #Separating query from parameters
-oneLineQuery=$(strCon $@)
+oneLineQuery=$(strCon "query"  $@)
+oneLineSearch=$(strCon "search" $@)
+oneLinePara=$(strCon "parameters" $@)
+
+printf "${BLUE}Query:${NDC} $oneLineQuery\n" 
+printf "${ORANGE}Search:${NDC} $oneLineSearch\n" 
+printf "${GREEN}Parameters: ${NDC}$oneLinePara \n" 
 
 
 if [ $# -eq 0  ]; then
 	main_menu $1 $2 2> /dev/null
 elif [  $# -ge 3  ]; then
-	for i in $@
-	do
-		paraOP+=($i)
-	done
-	options "${paraOP[@]}"
+	options $oneLineSearch $oneLineQuery $oneLinePara
 elif [ $# -eq 1 ]; then
-	options $1
+	options $oneLineQuery
 else
-	options $1 $2
+	options $oneLineSearch $oneLineQuery
 fi
 
 fi
