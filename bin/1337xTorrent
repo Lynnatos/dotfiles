@@ -10,6 +10,9 @@ source colors
 printf "${ORANGE}Donwload Torrent without ${LIGHT_RED}ADS!! \n ${NDC} "
 
 parameters=()
+page_number=1
+
+
 
 
 #Function to concatenate strings
@@ -67,16 +70,15 @@ strCon()
 #Function used to search the content based on category 
 download()
 {
-
-
-    page=`lynx -dump -listonly https://1337x.to/category-search/$2/"$1"/1/ | awk '{print $2}' | grep ".to/torrent"   `
+    page=`lynx -dump -listonly https://1337x.to/category-search/$2/"$1"/$page_number/ | awk '{print $2}' | grep ".to/torrent"   `
 
     query=($page)
-    select opt in "${query[@]}"  quit
+    select opt in "${query[@]}"  quit "Next Page" "Previous Page"
         do
 	    case $opt in
-                "quit")
-                exit
+		    "Next Page") (( page_number=$((page_number+1)) )) ; download $1 $2 $page_number ;; 
+		    "Previous Page") (( ((page_number--)) )) ; download $@ ;; 
+			"quit") exit;;
 
             esac
         
@@ -109,17 +111,15 @@ download()
 download_anyShit()
 {
 
-
-    page=`lynx -dump -listonly https://1337x.to/search/$1/1/ | awk '{print $2}' | grep ".to/torrent"   `
-	
-    query=($page)
-    select opt in "${query[@]}"  quit
+    page=`lynx -dump -listonly https://1337x.to/search/$1/$page_number/ | awk '{print $2}' | grep ".to/torrent"   `
+	query=($page)
+    	select opt in "${query[@]}"  quit "Next Page" "Previous Page" 
         do
-
+	echo	$opt
             case $opt in
-                "quit")
-                    exit
-
+		    "Next Page") (( ((page_number++)) )) ; echo $page_number& download_anyShit $@ ;; 
+		    "Previous Page") (( ((page_number--)) )) ; download_anyShit $@ ;; 
+				"quit") exit;;
             esac
 
 			clear			
@@ -187,18 +187,18 @@ main_menu(){
 		
 
 	if [ $1 == "Movies" ]; then
-		download $1 $2
+		download $1 $2 $page_number
 	
 	elif [ $1 == "TV"  ]; then
 		tv="TV"
-		download $1 $2
+		download $1 $2 $page_number
 	
 	elif [ $1 == "Games"  ]; then
-		download $1 $2
+		download $1 $2  $page_number
 	
 	elif [ $1 == "Anime" ];then
 		anime="Anime"
-		download $1 $2
+		download $1 $2 $page_number
 
 	else
 		printf "${LIGHT_PURPLE}Example: 1337xtorrent Games Solasta \n"
@@ -235,4 +235,5 @@ else
 fi
 
 fi
+
 
